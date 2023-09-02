@@ -9,7 +9,9 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-west-2"
+  region     = "us-west-2"
+  access_key = "AKIA52BLKQMYMCPZ6SVQ"
+  secret_key = "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"
 }
 
 resource "aws_vpc" "main" {
@@ -111,7 +113,7 @@ resource "aws_security_group" "webserver" {
 resource "aws_instance" "web" {
   ami                    = var.amis[var.region]
   instance_type          = var.instance_type
-  key_name               = var.key_name
+  key_name               = aws_key_pair.generated_key.key_name
   subnet_id              = aws_subnet.subnet1.id
   vpc_security_group_ids = [aws_security_group.webserver.id]
 
@@ -137,5 +139,20 @@ EOF
 
   tags = {
     Name = "CloudAcademy"
+  }
+}
+
+#Resource to create a SSH private key
+resource "tls_private_key" "demo1" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+#Resource to Create Key Pair
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.key_pair_name
+  public_key = tls_private_key.demo1.public_key_openssh
+  provisioner "local-exec" {
+    command = "echo '${tls_private_key.demo1.private_key_pem}' > ./${var.key_pair_name}.pem"
   }
 }

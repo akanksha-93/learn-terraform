@@ -5,7 +5,16 @@ variable "region" {
 variable "instance_type" {
   type = string
 }
-variable "key_name" {
+
+variable "key_pair_name" {
+  type = string
+}
+
+variable "aws_secret_access_key" {
+  type = string
+}
+
+variable "aws_access_key_id" {
   type = string
 }
 
